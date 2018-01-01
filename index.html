@@ -5,6 +5,15 @@
   <meta name="viewport" content="width=device-width">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.2.3/d3.min.js"></script>
   <title>Bar Chart</title>
+  <style media="screen">
+        .bar {
+      fill: steelblue;
+      }
+
+      .bar:hover {
+      fill: brown;
+      }
+  </style>
 </head>
 <body>
 
@@ -39,14 +48,28 @@ var margin = {
    x.domain(data['data'].map(d => d[0]));
    y.domain(d3.extent(data['data'], d => d[1]));
    console.log(x.domain());
-   var xAxis = d3.axisBottom(x);
+   var xAxis = d3.axisBottom(x)
+          // .tickValues(d3.range(0, width, 100))
+          // .tickPadding(10)
+          .tickFormat(d3.timeFormat("%Y %b"));
+   var yAxis = d3.axisLeft(y)
+                .tickFormat(d3.format(",.0f"));
    svg.append("g")
      .attr("transform", "translate("+margin.left+","+(height+margin.top)+")")
      .call(xAxis);
-   var yAxis = d3.axisLeft(y);
    svg.append("g")
    .attr("transform", "translate("+margin.left+","+margin.top+")")
      .call(yAxis);
+
+   svg.selectAll("rect")
+    .data(data['data'])
+  .enter().append("rect")
+    // .style("fill", "steelblue")
+    .attr("class", "bar")
+    .attr("x", function(d) { return x(d[0])+margin.left; })
+    .attr("width", x.bandwidth())
+    .attr("y", function(d) { return y(d[1])+margin.top; })
+    .attr("height", function(d) { return height - y(d[1]); });
 
 
  });
