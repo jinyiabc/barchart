@@ -10,6 +10,10 @@
 
 <script>
 
+var svg = d3.select("body").append("svg")
+    .attr("width", 960)
+    .attr("height", 500);
+
 var margin = {
     top: 20,
     right: 30,
@@ -19,19 +23,43 @@ var margin = {
   width = 960 - margin.left - margin.right,
   height = 500 - margin.top - margin.bottom;
 
+
   // scale to ordinal because x axis is not numerical
 
-  var x = d3.scaleOrdinal()//rangeRoundBands([0, width], .1);
-            .domain([new Date(1947, 1, 1), new Date(2015, 1, 1)])
+  var x = d3.scaleBand()//rangeRoundBands([0, width], .1);
+            // .domain([new Date(1947, 1, 1), new Date(2015, 1, 1)])
             .range([0,width]);
   //scale to numerical value by height
   var y = d3.scaleLinear()
-            .domain([0, 18000])
+            // .domain([0,18000])
             .range([height, 0]);
 
  const data = d3.json('data/data.json',function(data){
    console.log(data['data']);
+   x.domain(data['data'].map(d => d[0]));
+   y.domain(d3.extent(data['data'], d => d[1]));
+   console.log(x.domain());
+   var xAxis = d3.axisBottom(x);
+   svg.append("g")
+     .attr("transform", "translate("+margin.left+","+(height+margin.top)+")")
+     .call(xAxis);
+   var yAxis = d3.axisLeft(y);
+   svg.append("g")
+   .attr("transform", "translate("+margin.left+","+margin.top+")")
+     .call(yAxis);
+
+
  });
+
+
+ // var xAxis = d3.axisBottom(x);
+      // .ticks(d3.timeYear.every(5)).tickFormat(d3.timeFormat("%Y"));
+ // var yAxis = d3.axisLeft(y);
+               // .tickFormat(d3.format(",.0f"));
+
+
+
+
  //console.log(data);
 </script>
 </body>
