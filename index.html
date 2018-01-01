@@ -6,6 +6,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.2.3/d3.min.js"></script>
   <title>Bar Chart</title>
   <style media="screen">
+      body { font: 12px Arial;}
+
         .bar {
       fill: steelblue;
       }
@@ -13,11 +15,37 @@
       .bar:hover {
       fill: brown;
       }
+      div.tooltip {
+      position: absolute;
+      text-align: center;
+      width: 60px;
+      height: 28px;
+      padding: 2px;
+      font: 12px sans-serif;
+      background: lightsteelblue;
+      border: 0px;
+      border-radius: 8px;
+      pointer-events: none;
+      }
   </style>
 </head>
 <body>
 
 <script>
+//define the tooltip.
+var div = d3.select("body").append("div")
+    .attr("class", "tooltip")
+    .style("opacity", 0);
+
+// Parse the date / time
+var parseDate = d3.timeParse("%Y-%m-%d");
+console.log(parseDate("1947-01-01")); //Wed Jan 01 1947 00:00:00 GMT+0800 (CST)
+
+ var formatTime = d3.timeFormat("%Y-%m");
+
+// var parseDate = d3.timeFormat("%Y-%m-%d");
+//console.log(parseDate(new Date));
+
 
 var svg = d3.select("body").append("svg")
     .attr("width", 960)
@@ -45,15 +73,22 @@ var margin = {
 
  const data = d3.json('data/data.json',function(data){
    console.log(data['data']);
+   data['data'].forEach(function(d) {
+            d[0] = parseDate(d[0]);
+        });
    x.domain(data['data'].map(d => d[0]));
    y.domain(d3.extent(data['data'], d => d[1]));
-   console.log(x.domain());
+   // console.log(x.domain());
    var xAxis = d3.axisBottom(x)
+                 // .ticks(d3.timeYear.every(5))
+                 .tickValues(x.domain().filter(function(d,i){ return !(i%10)}))
+
           // .tickValues(d3.range(0, width, 100))
           // .tickPadding(10)
-          .tickFormat(d3.timeFormat("%Y %b"));
+           .tickFormat(d3.timeFormat("%Y"));
    var yAxis = d3.axisLeft(y)
-                .tickFormat(d3.format(",.0f"));
+                .tickFormat(d3.format(",.0f"))
+                .ticks(5);
    svg.append("g")
      .attr("transform", "translate("+margin.left+","+(height+margin.top)+")")
      .call(xAxis);
@@ -69,21 +104,26 @@ var margin = {
     .attr("x", function(d) { return x(d[0])+margin.left; })
     .attr("width", x.bandwidth())
     .attr("y", function(d) { return y(d[1])+margin.top; })
-    .attr("height", function(d) { return height - y(d[1]); });
+    .attr("height", function(d) { return height - y(d[1]); })
+    .on("mouseover", function(d) {
+                  div.transition()
+                      .duration(200)
+                      .style("opacity", .9);
+                  div	.html(formatTime(d[0]) + "<br/>"  + d[1])
+                      .style("left", (d3.event.pageX) + "px")
+                      .style("top", (d3.event.pageY - 28) + "px");
+                  })
+    .on("mouseout", function(d) {
+                  div.transition()
+                      .duration(500)
+                      .style("opacity", 0);
+});
 
 
  });
 
 
- // var xAxis = d3.axisBottom(x);
-      // .ticks(d3.timeYear.every(5)).tickFormat(d3.timeFormat("%Y"));
- // var yAxis = d3.axisLeft(y);
-               // .tickFormat(d3.format(",.0f"));
 
-
-
-
- //console.log(data);
 </script>
 </body>
 </html>
