@@ -10,6 +10,29 @@
 
 <script>
 
+var margin = {
+    top: 20,
+    right: 30,
+    bottom: 30,
+    left: 40
+  },
+  width = 960 - margin.left - margin.right,
+  height = 500 - margin.top - margin.bottom;
+
+  // scale to ordinal because x axis is not numerical
+
+  var x = d3.scaleOrdinal()//rangeRoundBands([0, width], .1);
+            .domain([new Date(1947, 1, 1), new Date(2015, 1, 1)])
+            .range([0,width]);
+  //scale to numerical value by height
+  var y = d3.scaleLinear()
+            .domain([0, 18000])
+            .range([height, 0]);
+
+ const data = d3.json('data/data.json',function(data){
+   console.log(data['data']);
+ });
+ //console.log(data);
 </script>
 </body>
 </html>
